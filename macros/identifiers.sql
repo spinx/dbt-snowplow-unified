@@ -102,6 +102,27 @@ You may obtain a copy of the Snowplow Personal and Academic License Version 1.0 
 
 {% endmacro %}
 
+{% macro duckdb__session_identifiers() %}
+
+ {% if var('snowplow__session_identifiers') %}
+   {{ return(var('snowplow__session_identifiers')) }}
+
+  {% else %}
+
+    {% if var('snowplow__enable_web') and var('snowplow__enable_mobile') %}
+      {{ return([{'schema': var('snowplow__session_context'), 'field': 'session_id', 'prefix': 'session_'},{'schema': 'atomic', 'field': 'domain_sessionid', 'prefix': 'session_'}] )}}
+
+    {% elif var('snowplow__enable_mobile') %}
+      {{ return([{'schema': var('snowplow__session_context'), 'field': 'session_id', 'prefix': 'session_'}] )}}
+
+    {% else %}
+      {{ return([{'schema': 'atomic', 'field': 'domain_sessionid', 'prefix': 'session_'}] )}}
+
+    {% endif %}
+  {% endif %}
+
+{% endmacro %}
+
 {% macro user_identifiers() %}
   {{ return(adapter.dispatch('user_identifiers', 'snowplow_unified')()) }}
 {% endmacro %}
