@@ -110,18 +110,18 @@ You may obtain a copy of the Snowplow Personal and Academic License Version 1.0 
   {% else %}
 
     {% if var('snowplow__enable_web') and var('snowplow__enable_mobile') %}
-      {{ return([{'schema': var('snowplow__session_context'), 'field': 'session_id', 'prefix': 'session_'},{'schema': 'atomic', 'field': 'domain_sessionid', 'prefix': 'session_'}] )}}
+      {{ return([{'schema': 'contexts_com_snowplowanalytics_snowplow_client_session_1', 'field': 'session_id'}, {'schema': 'atomic', 'field': 'domain_sessionid'}] )}}
 
     {% elif var('snowplow__enable_mobile') %}
-      {{ return([{'schema': var('snowplow__session_context'), 'field': 'session_id', 'prefix': 'session_'}] )}}
+      {{ return([{'schema': 'contexts_com_snowplowanalytics_snowplow_client_session_1', 'field': 'session_id'}] )}}
 
     {% else %}
-      {{ return([{'schema': 'atomic', 'field': 'domain_sessionid', 'prefix': 'session_'}] )}}
+      {{ return([{'schema': 'atomic', 'field': 'domain_sessionid'}] )}}
 
     {% endif %}
   {% endif %}
 
-{% endmacro %}
+  {% endmacro %}
 
 {% macro user_identifiers() %}
   {{ return(adapter.dispatch('user_identifiers', 'snowplow_unified')()) }}
@@ -215,3 +215,25 @@ You may obtain a copy of the Snowplow Personal and Academic License Version 1.0 
   {% endif %}
 
 {% endmacro %}
+
+{% macro duckdb__user_identifiers() %}
+
+ {% if var('snowplow__user_identifiers') %}
+   {{ return(var('snowplow__user_identifiers')) }}
+
+  {% else %}
+
+    {% if var('snowplow__enable_web') and var('snowplow__enable_mobile') %}
+      {{ return([{'schema': 'contexts_com_snowplowanalytics_snowplow_client_session_1', 'field': 'userId'}, {'schema': 'atomic', 'field': 'domain_userid'}] )}}
+
+    {% elif var('snowplow__enable_mobile') %}
+      {{ return([{'schema': 'contexts_com_snowplowanalytics_snowplow_client_session_1', 'field': 'userId'}] )}}
+
+    {% else %}
+      {{ return([{'schema': 'atomic', 'field': 'domain_userid'}] )}}
+
+    {% endif %}
+  {% endif %}
+
+
+  {% endmacro %}
