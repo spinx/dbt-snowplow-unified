@@ -247,32 +247,57 @@ You may obtain a copy of the Snowplow Personal and Academic License Version 1.0 
 {% endmacro %}
 
 {% macro duckdb__get_mobile_context_fields() %}
-  {% if var('snowplow__enable_mobile_context', true) %}
+  {% if var('snowplow__enable_mobile_context', false) %}
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'deviceManufacturer' as varchar) AS mobile__device_manufacturer
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'deviceModel' as varchar) AS mobile__device_model
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'osType' as varchar) AS mobile__os_type
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'osVersion' as varchar) AS mobile__os_version
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'androidIdfa' as varchar) AS mobile__android_idfa
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appleIdfa' as varchar) AS mobile__apple_idfa
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appleIdfv' as varchar) AS mobile__apple_idfv
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'carrier' as varchar) AS mobile__carrier
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'openIdfa' as varchar) AS mobile__open_idfa
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'networkTechnology' as varchar) AS mobile__network_technology
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'networkType' as varchar(255)) AS mobile__network_type
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'physicalMemory' as integer) AS mobile__physical_memory
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'systemAvailableMemory' as integer) AS mobile__system_available_memory
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appAvailableMemory' as integer) AS mobile__app_available_memory
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'batteryLevel' as integer) AS mobile__battery_level
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'batteryState' as varchar) AS mobile__battery_state
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'lowPowerMode' as boolean) AS mobile__low_power_mode
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'availableStorage' as integer) AS mobile__available_storage
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'totalStorage' as integer) AS mobile__total_storage
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'isPortrait' as boolean) AS mobile__is_portrait
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'resolution' as varchar) AS mobile__resolution
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'scale' as float) AS mobile__scale
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'language' as varchar) AS mobile__language
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appSetId' as varchar) AS mobile__app_set_id
+    , cast(contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appSetIdScope' as varchar) AS mobile__app_set_id_scope  
   {% else %}
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'deviceManufacturer'::varchar AS mobile__device_manufacturer
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'deviceModel'::varchar AS mobile__device_model
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'osType'::varchar AS mobile__os_type
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'osVersion'::varchar AS mobile__os_version
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'androidIdfa'::varchar AS mobile__android_idfa
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appleIdfa'::varchar AS mobile__apple_idfa
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appleIdfv'::varchar AS mobile__apple_idfv
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'carrier'::varchar AS mobile__carrier
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'openIdfa'::varchar AS mobile__open_idfa
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'networkTechnology'::varchar AS mobile__network_technology
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'networkType'::varchar(255) AS mobile__network_type
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'physicalMemory'::int AS mobile__physical_memory
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'systemAvailableMemory'::int AS mobile__system_available_memory
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appAvailableMemory'::int AS mobile__app_available_memory
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'batteryLevel'::int AS mobile__battery_level
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'batteryState'::varchar AS mobile__battery_state
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'lowPowerMode'::boolean AS mobile__low_power_mode
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'availableStorage'::int AS mobile__available_storage
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'totalStorage'::int AS mobile__total_storage
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'isPortrait'::boolean AS mobile__is_portrait
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'resolution'::varchar AS mobile__resolution
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'scale'::float AS mobile__scale
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'language'::varchar AS mobile__language
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appSetId'::varchar AS mobile__app_set_id
-    , contexts_com_snowplowanalytics_snowplow_mobile_context_1->0->>'appSetIdScope'::varchar AS mobile__app_set_id_scope  
+    , cast(null as {{ dbt.type_string() }}) as mobile__device_manufacturer
+    , cast(null as {{ dbt.type_string() }}) as mobile__device_model
+    , cast(null as {{ dbt.type_string() }}) as mobile__os_type
+    , cast(null as {{ dbt.type_string() }}) as mobile__os_version
+    , cast(null as {{ dbt.type_string() }}) as mobile__android_idfa
+    , cast(null as {{ dbt.type_string() }}) as mobile__apple_idfa
+    , cast(null as {{ dbt.type_string() }}) as mobile__apple_idfv
+    , cast(null as {{ dbt.type_string() }}) as mobile__carrier
+    , cast(null as {{ dbt.type_string() }}) as mobile__open_idfa
+    , cast(null as {{ dbt.type_string() }}) as mobile__network_technology
+    , cast(null as {{ dbt.type_string() }}) as mobile__network_type
+    , cast(null as {{ dbt.type_int() }}) as mobile__physical_memory
+    , cast(null as {{ dbt.type_int() }}) as mobile__system_available_memory
+    , cast(null as {{ dbt.type_int() }}) as mobile__app_available_memory
+    , cast(null as {{ dbt.type_int() }}) as mobile__battery_level
+    , cast(null as {{ dbt.type_string() }}) as mobile__battery_state
+    , cast(null as {{ dbt.type_boolean() }}) as mobile__low_power_mode
+    , cast(null as {{ dbt.type_int() }}) as mobile__available_storage
+    , cast(null as {{ dbt.type_int() }}) as mobile__total_storage
+    , cast(null as {{ dbt.type_boolean() }}) as mobile__is_portrait
+    , cast(null as {{ dbt.type_string() }}) as mobile__resolution
+    , cast(null as {{ dbt.type_float() }}) as mobile__scale
+    , cast(null as {{ dbt.type_string() }}) as mobile__language
+    , cast(null as {{ dbt.type_string() }}) as mobile__app_set_id
+    , cast(null as {{ dbt.type_string() }}) as mobile__app_set_id_scope
   {% endif %}
 {% endmacro %}
