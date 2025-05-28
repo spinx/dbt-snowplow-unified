@@ -23,20 +23,10 @@ Select
     ('content_height', 'int'),
     ('content_width', 'int'),
   ] %}
-    {% if target.type == 'postgres' -%}
+    {% if target.type in ['postgres', 'duckdb'] -%}
       (
         {{ col }}::json->0 ->>'{{ att }}'
       )::{{ type}} as {{ att }},
-    {%- elif target.type == 'duckdb' -%}
-      cast(
-        json_extract(
-          json_extract_array_element(
-            cast({{ col }} as json),
-            0
-          ),
-          '$.{{ att }}'
-        ) as {{ type }}
-      ) as {{ att }},
     {%- else -%}
       case when {{ col }} like '%{{ att }}%' then
         JSON_EXTRACT_PATH_TEXT(
