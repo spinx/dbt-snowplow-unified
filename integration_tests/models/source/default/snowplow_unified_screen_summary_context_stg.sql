@@ -27,6 +27,16 @@ Select
       (
         {{ col }}::json->0 ->>'{{ att }}'
       )::{{ type}} as {{ att }},
+    {%- elif target.type == 'duckdb' -%}
+      cast(
+        json_extract(
+          json_extract_array_element(
+            cast({{ col }} as json),
+            0
+          ),
+          '$.{{ att }}'
+        ) as {{ type }}
+      ) as {{ att }},
     {%- else -%}
       case when {{ col }} like '%{{ att }}%' then
         JSON_EXTRACT_PATH_TEXT(

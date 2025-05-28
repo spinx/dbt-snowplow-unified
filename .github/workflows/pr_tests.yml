@@ -62,7 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         dbt_version: ["1.*"]
-        warehouse: ["postgres", "bigquery", "snowflake", "databricks", "redshift", "spark_iceberg"] # TODO: Add RS self-hosted runner
+        warehouse: ["postgres", "bigquery", "snowflake", "databricks", "redshift", "spark_iceberg", "duckdb"] # TODO: Add RS self-hosted runner
     services:
       postgres:
         image: postgres:latest
@@ -95,6 +95,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_SNOWPLOWCI_READ_USERNAME }}
           password: ${{ secrets.DOCKERHUB_SNOWPLOWCI_READ_PASSWORD }}
+        if: ${{env.WAREHOUSE_PLATFORM != 'duckdb'}}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -153,6 +154,7 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
+        if: ${{env.WAREHOUSE_PLATFORM != 'duckdb'}}
 
       
       - name: Build and start Spark cluster

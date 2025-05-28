@@ -35,11 +35,14 @@ models:
       databricks:
         +enabled: "{{ target.type in ['databricks'] | as_bool() }}"
       default:
-        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
+        +enabled: "{{ target.type in ['redshift', 'postgres', 'duckdb'] | as_bool() }}"
       snowflake:
         +enabled: "{{ target.type == 'snowflake' | as_bool() }}"
       spark:
         +enabled: "{{ target.type == 'spark' | as_bool() }}"
+      # duckdb:
+      #   +enabled: "{{ target.type == 'duckdb' | as_bool() }}"
+
 vars:
   snowplow_unified:
     snowplow__allow_null_dvce_tstamps: true
@@ -334,11 +337,16 @@ seeds:
           root_tstamp: timestamp
           elapsed_time: float
       snowplow_unified_spider_context:
-        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
+        +enabled: "{{ target.type in ['redshift', 'postgres', 'duckdb'] | as_bool() }}"
       snowplow_unified_ua_context:
         +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
       snowplow_unified_yauaa_context:
-        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
+        +enabled: "{{ target.type in ['redshift', 'postgres', 'duckdb'] | as_bool() }}"
+    
+    # Import seperately as "null" import is not supported by DBT's csv parser
+    duckdb:
+      snowplow_unified_ua_context:
+        +enabled: "{{ target.type in ['duckdb'] | as_bool() }}"
 
     expected:
       snowplow_unified_consent_versions_expected:
@@ -398,8 +406,8 @@ seeds:
           refr_term: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
           mkt_term: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
           mkt_content: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-          mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
-          mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
+          mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
+          mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
       snowplow_unified_consent_users_expected:
         +column_types:
           domain_userid: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
@@ -437,6 +445,7 @@ seeds:
           cmp_load_time: float
           derived_tstamp_date: date
       snowplow_unified_views_expected:
+          +enabled: "{{ target.type not in ['duckdb'] | as_bool() }}"
           +column_types:
             app_id: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
             horizontal_percentage_scrolled: float
@@ -508,9 +517,9 @@ seeds:
             mobile__is_portrait: boolean
             iab__spider_or_robot: boolean
             stitched_user_id: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-            mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
+            mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
             mobile__os_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-            mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
+            mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
             yauaa__agent_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
             yauaa__agent_version_major: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
             yauaa__layout_engine_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
@@ -786,8 +795,168 @@ seeds:
             geo__latitude_longitude_accuracy:  "{{ 'double' if target.type in ['spark', 'databricks'] else 'float' }}"
             geo__longitude:  "{{ 'double' if target.type in ['spark', 'databricks'] else 'float' }}"
             geo__speed:  "{{ 'double' if target.type in ['spark', 'databricks'] else 'float' }}"
+      duckdb:
+        snowplow_unified_views_expected:
+          +enabled: "{{ target.type in ['duckdb'] | as_bool() }}"
+          +column_types:
+            view_id: varchar
+            event_name: varchar
+            event_id: varchar
+            session_identifier: varchar
+            view_in_session_index: integer
+            views_in_session: integer
+            session__previous_session_id: varchar
+            user_id: varchar
+            user_identifier: varchar
+            stitched_user_id: varchar
+            network_userid: varchar
+            dvce_created_tstamp: timestamp
+            collector_tstamp: timestamp
+            derived_tstamp: timestamp
+            start_tstamp: timestamp
+            end_tstamp: timestamp
+            model_tstamp: timestamp
+            app_id: varchar
+            platform: varchar
+            device_identifier: varchar
+            device_category: varchar
+            device_session_index: integer
+            os_version: varchar
+            os_type: varchar
+            mobile__device_manufacturer: varchar
+            mobile__device_model: varchar
+            mobile__os_type: varchar
+            mobile__os_version: varchar
+            mobile__android_idfa: varchar
+            mobile__apple_idfa: varchar
+            mobile__apple_idfv: varchar
+            mobile__carrier: varchar
+            mobile__open_idfa: varchar
+            mobile__network_technology: varchar
+            mobile__network_type: varchar
+            mobile__physical_memory: integer
+            mobile__system_available_memory: integer
+            mobile__app_available_memory: integer
+            mobile__battery_level: float
+            mobile__battery_state: varchar
+            mobile__low_power_mode: boolean
+            mobile__available_storage: bigint
+            mobile__total_storage: bigint
+            mobile__is_portrait: boolean
+            mobile__resolution: varchar
+            mobile__scale: float
+            mobile__language: varchar
+            mobile__app_set_id: varchar
+            mobile__app_set_id_scope: varchar
+            os_timezone: varchar
+            screen_resolution: varchar
+            yauaa__device_brand: varchar
+            yauaa__device_class: varchar
+            yauaa__device_version: varchar
+            yauaa__operating_system_version: varchar
+            yauaa__operating_system_class: varchar
+            yauaa__operating_system_name: varchar
+            yauaa__operating_system_name_version: varchar
+            geo_country: varchar
+            geo_region: varchar
+            geo_region_name: varchar
+            geo_city: varchar
+            geo_zipcode: varchar
+            geo_latitude: float
+            geo_longitude: float
+            geo_timezone: varchar
+            user_ipaddress: varchar
+            engaged_time_in_s: float
+            absolute_time_in_s: float
+            horizontal_pixels_scrolled: integer
+            vertical_pixels_scrolled: integer
+            horizontal_percentage_scrolled: float
+            vertical_percentage_scrolled: float
+            mkt_medium: varchar
+            mkt_source: varchar
+            mkt_term: varchar
+            mkt_content: varchar
+            mkt_campaign: varchar
+            mkt_clickid: varchar
+            mkt_network: varchar
+            default_channel_group: varchar
+            page_url: varchar
+            page_referrer: varchar
+            refr_medium: varchar
+            refr_source: varchar
+            refr_term: varchar
+            page_title: varchar
+            content_group: varchar
+            page_urlscheme: varchar
+            page_urlhost: varchar
+            page_urlpath: varchar
+            page_urlquery: varchar
+            page_urlfragment: varchar
+            refr_urlscheme: varchar
+            refr_urlhost: varchar
+            refr_urlpath: varchar
+            refr_urlquery: varchar
+            refr_urlfragment: varchar
+            br_lang: varchar
+            br_viewwidth: integer
+            br_viewheight: integer
+            br_colordepth: varchar
+            br_renderengine: varchar
+            doc_width: integer
+            doc_height: integer
+            iab__category: varchar
+            iab__primary_impact: varchar
+            iab__reason: varchar
+            iab__spider_or_robot: boolean
+            yauaa__device_name: varchar
+            yauaa__agent_class: varchar
+            yauaa__agent_name: varchar
+            yauaa__agent_name_version: varchar
+            yauaa__agent_name_version_major: varchar
+            yauaa__agent_version: varchar
+            yauaa__agent_version_major: varchar
+            yauaa__layout_engine_class: varchar
+            yauaa__layout_engine_name: varchar
+            yauaa__layout_engine_name_version: varchar
+            yauaa__layout_engine_name_version_major: varchar
+            yauaa__layout_engine_version: varchar
+            yauaa__layout_engine_version_major: varchar
+            ua__device_family: varchar
+            ua__os_version: varchar
+            ua__os_major: varchar
+            ua__os_minor: varchar
+            ua__os_family: varchar
+            ua__os_patch: varchar
+            ua__os_patch_minor: varchar
+            ua__useragent_family: varchar
+            ua__useragent_major: varchar
+            ua__useragent_minor: varchar
+            ua__useragent_patch: varchar
+            ua__useragent_version: varchar
+            screen_view__name: varchar
+            screen_view__previous_id: varchar
+            screen_view__previous_name: varchar
+            screen_view__previous_type: varchar
+            screen_view__transition_type: varchar
+            screen_view__type: varchar
+            app__build: varchar
+            app__version: varchar
+            geo__altitude: float
+            geo__altitude_accuracy: float
+            geo__bearing: float
+            geo__latitude: float
+            geo__latitude_longitude_accuracy: float
+            geo__longitude: float
+            geo__speed: float
+            screen__fragment: varchar
+            screen__top_view_controller: varchar
+            screen__view_controller: varchar
+            useragent: varchar
+            v_collector: varchar
+            event_id2: varchar
+            agg_test: integer
       default:
-        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
+        +enabled: "{{ target.type in ['redshift', 'postgres', 'duckdb'] | as_bool() }}"
         snowplow_unified_sessions_expected:
           +column_types:
             app_id: varchar
@@ -841,9 +1010,9 @@ seeds:
             operating_system_name_version: varchar
             operating_system_version: varchar
             cv_view_page_first_conversion: timestamp
-            mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
+            mobile__total_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
             mobile__os_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-            mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift'] else 'integer' }}"
+            mobile__available_storage: "{{ 'bigint' if target.type in ['postgres', 'spark', 'databricks', 'redshift', 'duckdb'] else 'integer' }}"
             yauaa__agent_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
             yauaa__agent_version_major: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
             yauaa__layout_engine_version: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
