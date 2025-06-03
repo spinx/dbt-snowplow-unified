@@ -1,3 +1,2 @@
 packages:
-  - git: https://github.com/spinx/dbt-snowplow-utils
-    revision: duckdb
+  - local: ../../dbt-snowplow-utils

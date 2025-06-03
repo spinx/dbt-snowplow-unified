@@ -35,13 +35,13 @@ models:
       databricks:
         +enabled: "{{ target.type in ['databricks'] | as_bool() }}"
       default:
-        +enabled: "{{ target.type in ['redshift', 'postgres', 'duckdb'] | as_bool() }}"
+        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
       snowflake:
         +enabled: "{{ target.type == 'snowflake' | as_bool() }}"
       spark:
         +enabled: "{{ target.type == 'spark' | as_bool() }}"
-      # duckdb:
-      #   +enabled: "{{ target.type == 'duckdb' | as_bool() }}"
+      duckdb:
+        +enabled: "{{ target.type == 'duckdb' | as_bool() }}"
 
 vars:
   snowplow_unified:
@@ -345,6 +345,8 @@ seeds:
     
     # Import seperately as "null" import is not supported by DBT's csv parser
     duckdb:
+      snowplow_unified_ua_context:
+        +enabled: "{{ target.type in ['duckdb'] | as_bool() }}"
       snowplow_unified_ua_context:
         +enabled: "{{ target.type in ['duckdb'] | as_bool() }}"
 

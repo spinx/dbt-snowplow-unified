@@ -111,17 +111,16 @@ You may obtain a copy of the Snowplow Personal and Academic License Version 1.0 
     , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'basis_for_processing' as STRING) as consent__basis_for_processing
     , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'consent_url' as STRING) as consent__consent_url
     , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'consent_version' as STRING) as consent__consent_version
-    , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'consent_scopes' as ARRAY<STRING>) as consent__consent_scopes
-    , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'domains_applied' as ARRAY<STRING>) as consent__domains_applied
+    , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'consent_scopes' as STRING[]) as consent__consent_scopes
+    , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'domains_applied' as STRING[]) as consent__domains_applied
     , cast(unstruct_event_com_snowplowanalytics_snowplow_consent_preferences_1->'gdpr_applies' as boolean) as consent__gdpr_applies
   {% else %}
       , cast(null as {{ dbt.type_string() }}) as consent__event_type
       , cast(null as {{ dbt.type_string() }}) as consent__basis_for_processing
       , cast(null as {{ dbt.type_string() }}) as consent__consent_url
       , cast(null as {{ dbt.type_string() }}) as consent__consent_version
-      , cast(null as ARRAY<STRING>) as consent__consent_scopes
-      , cast(null as ARRAY<STRING>) as consent__domains_applied
+      , cast(null as STRING[]) as consent__consent_scopes
+      , cast(null as STRING[]) as consent__domains_applied
       , cast(null as {{ dbt.type_boolean() }}) as consent__gdpr_applies
-
   {% endif %}
 {% endmacro %}

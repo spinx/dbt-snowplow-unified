@@ -19,6 +19,9 @@ SELECT
     {% if target.type in ['snowflake'] %}
         ,AS_ARRAY(parse_json(cv_view_page_events)) as cv_view_page_events
         ,AS_ARRAY(parse_json(cv_view_page_values)) as cv_view_page_values  
+    {% elif target.type in ['duckdb'] %}
+        ,json(cv_view_page_events) as cv_view_page_events
+        ,json(cv_view_page_values) as cv_view_page_values
     {% elif target.type in ['bigquery'] %}
         {# BQ cannott compare array columns #}
         ,to_json_string(array(select replace(x, '"', '') from unnest(json_extract_array(cv_view_page_events,'$')) as x)) as cv_view_page_events
